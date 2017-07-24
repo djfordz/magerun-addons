@@ -1,0 +1,27 @@
+{
+    "name": "dford/df-addons",
+    "description": "Addon commands for N98 MageRun",
+    "type": "magento-module",
+    "homepage": "https://github.com/djfordz/magerun-addons",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "David Ford",
+            "email": "djfordz@gmail.com",
+            "homepage": "http://djfordz.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "n98/magerun": ">=1.97"
+    },
+    "autoload": {
+        "psr-0": {
+            "Magefoo": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
