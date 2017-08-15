@@ -43,16 +43,25 @@ class SendOrderEmail extends AbstractMagentoCommand
                 $order = $value;
             }
 
+            if(empty($order)) {
+                echo "No orders completed. exiting...\n";
+                exit(1);
+            }
+
             $orderId = $order->getRealOrderId();
 
             $templateId = \Mage::getStoreConfig(self::XML_PATH_EMAIL_TEMPLATE, $storeId);
-
-            $mailer = \Mage::getModel('core/email_template_mailer');
+                
             $emailInfo = \Mage::getModel('core/email_info');
             $emailInfo->addTo($input->getArgument('email'), 'TestEmail');
             
+            $mailer = \Mage::getModel('core/email_template_mailer');
+
             $mailer->addEmailInfo($emailInfo);
-            $mailer->setSender(\Mage::getStoreConfig(self::XML_PATH_EMAIL_IDENTITY), $storeId);
+            $mailer->setSender(
+                \Mage::getStoreConfig(self::XML_PATH_EMAIL_IDENTITY), $storeId
+            );
+            
             $mailer->setStoreId($storeId);
             $mailer->setTemplateId($templateId);
             $mailer->setTemplateParams(
@@ -63,15 +72,24 @@ class SendOrderEmail extends AbstractMagentoCommand
                 )
             );
 
-            $emailQueue = \Mage::getModel('core/email_queue');
-            $emailQueue->setEntityId($orderId)
-                ->setEntityType(self::ENTITY)
-                ->setEventType(self::EMAIL_EVENT_NAME_NEW_ORDER)
-                ->setIsForceCheck(true);
+            $version = \Mage::getVersionInfo();
 
-            $mailer->setQueue($emailQueue)->send();
+            if($version['minor'] >= '9') {
+                $emailQueue = \Mage::getModel('core/email_queue');
+                $emailQueue->setEntityId($orderId)
+                    ->setEntityType(self::ENTITY)
+                    ->setEventType(self::EMAIL_EVENT_NAME_NEW_ORDER)
+                    ->setIsForceCheck(true);
 
-            echo "Email added to Queue\n";
+                $mailer->setQueue($emailQueue)->send();
+
+                echo "Email added to Queue\n";
+            } else {
+
+                $mailer->send();
+
+               echo "Magento version < 1.9 no cron queue. sending transactional without cron.\n"; 
+            }
         }
     }
 }
