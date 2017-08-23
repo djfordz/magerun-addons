@@ -74,7 +74,7 @@ class SendOrderEmail extends AbstractMagentoCommand
 
             $version = \Mage::getVersionInfo();
 
-            if($version['minor'] >= '9') {
+            if($this->_magentoEnterprise == false && $version['minor'] >= '9') {
                 $emailQueue = \Mage::getModel('core/email_queue');
                 $emailQueue->setEntityId($orderId)
                     ->setEntityType(self::ENTITY)
