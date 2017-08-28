@@ -20,7 +20,7 @@ class SendOrderEmail extends AbstractMagentoCommand
     protected function configure()
     {
         $this
-            ->setName('customer:sendtransemail')
+            ->setName('customer:sendorderemail')
             ->setDescription('Test email functionality. Send a customer order email to specified email address. [magefoo]')
             ->addArgument('email', InputArgument::REQUIRED, 'email to send order confirmation to?')
         ;
@@ -74,21 +74,28 @@ class SendOrderEmail extends AbstractMagentoCommand
 
             $version = \Mage::getVersionInfo();
 
-            if($this->_magentoEnterprise == false && $version['minor'] >= '9') {
+            if ($version['minor'] >= '9') {
                 $emailQueue = \Mage::getModel('core/email_queue');
                 $emailQueue->setEntityId($orderId)
                     ->setEntityType(self::ENTITY)
                     ->setEventType(self::EMAIL_EVENT_NAME_NEW_ORDER)
                     ->setIsForceCheck(true);
 
-                $mailer->setQueue($emailQueue)->send();
-
-                echo "Email added to Queue\n";
+                try {
+                    $mailer->setQueue($emailQueue)->send();
+                    echo "Queue Detected, Email added to Queue\n";
+                } catch (\Exception $e) {
+                    echo "Unable to complete. Error: " . $e->getMessage();
+                }
+                
             } else {
 
-                $mailer->send();
-
-               echo "Magento version < 1.9 no cron queue. sending transactional without cron.\n"; 
+                try {
+                    $mailer->send();
+                    echo "No Queue Detected, Sending Transactional Email.\n";
+                } catch (\Exception $e) {
+                    echo "Unable to complete. Error: " . $e->getMessage();
+                }
             }
         }
     }
