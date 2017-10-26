@@ -32,16 +32,15 @@ class SendOrderEmail extends AbstractMagentoCommand
         if ($this->initMagento()) {
             $storeId = \Mage::app()->getStore()->getStoreId();
 
-            $collection = \Mage::getModel('sales/order')->getCollection();
-            $completed = $collection
+            $collection = \Mage::getModel('sales/order')->getCollection()
                 ->addFieldToFilter('status', 'complete')
                 ->addFieldToFilter('status', 'pending');
-            $completed->getSelect()->order(new \Zend_Db_Expr('RAND()'));
-            $completed->getSelect()->limit(1);
+            $collection->getSelect()->order(new \Zend_Db_Expr('RAND()'));
+            $collection->getSelect()->limit(1);
 
             $order = null;
 
-            foreach($completed as $value) {
+            foreach($collection as $value) {
                 $order = $value;
             }
 
