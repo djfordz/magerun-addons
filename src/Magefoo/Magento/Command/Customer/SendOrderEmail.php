@@ -48,10 +48,10 @@ class SendOrderEmail extends AbstractMagentoCommand
                     ->addFieldToFilter('status', 'pending');
                 $collection->getSelect()->order(new \Zend_Db_Expr('RAND()'));
                 $collection->getSelect()->limit(1);
-            }
 
-            foreach($collection as $value) {
-                $order = $value;
+                foreach($collection as $value) {
+                    $order = $value;
+                }
             }
 
             if(empty($order)) {
